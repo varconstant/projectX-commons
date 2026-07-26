@@ -13,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -40,8 +41,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String userId = claims.getSubject();
             String role = claims.get("role", String.class);
             String type = claims.get("type", String.class);
+            String roomId = claims.get("roomId", String.class);
 
             if (StringUtils.isBlank(userId) || StringUtils.isBlank(role) || StringUtils.isBlank(type)) {
+                SecurityContextHolder.clearContext();
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                return;
+            }
+            if ("ROOM".equals(type) && StringUtils.isBlank(roomId)) {
                 SecurityContextHolder.clearContext();
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 return;
@@ -52,7 +59,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                             null,
                             List.of(new SimpleGrantedAuthority("ROLE_" + role))
                     );
-            auth.setDetails(Map.of("type", type, "role", role));
+
+            Map<String, String> details = new HashMap<>();
+            details.put("type", type);
+            details.put("role", role);
+            if (roomId != null) {
+                details.put("roomId", roomId);
+            }
+            auth.setDetails(details);
             SecurityContextHolder.getContext().setAuthentication(auth);
 
         } catch (Exception e) {
