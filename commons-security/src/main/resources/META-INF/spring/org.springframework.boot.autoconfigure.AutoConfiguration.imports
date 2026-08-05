@@ -1,1 +1,2 @@
 com.projectX.matchmaking.commons.security.JwtSecurityConfigAutoConfiguration
+com.projectX.matchmaking.commons.security.AuthorizationAutoConfiguration
