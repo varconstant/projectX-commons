@@ -42,6 +42,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String role = claims.get("role", String.class);
             String type = claims.get("type", String.class);
             String roomId = claims.get("roomId", String.class);
+            Integer maxVotes = claims.get("maxVotes", Integer.class);
 
             if (StringUtils.isBlank(userId) || StringUtils.isBlank(role) || StringUtils.isBlank(type)) {
                 SecurityContextHolder.clearContext();
@@ -65,6 +66,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             details.put("role", role);
             if (roomId != null) {
                 details.put("roomId", roomId);
+            }
+            if (maxVotes != null) {
+                details.put("maxVotes", maxVotes.toString());
             }
             auth.setDetails(details);
             SecurityContextHolder.getContext().setAuthentication(auth);

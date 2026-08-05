@@ -38,26 +38,28 @@ public class TokenProvider {
      * Global identity token, used for all app-level (non-room-scoped) endpoints.
      */
     public String generateAppToken(Long userId, Duration validity) {
-        return buildToken(userId, Role.USER, TokenType.APP, null, validity);
+        return buildToken(userId, Role.USER, TokenType.APP, null, null, validity);
     }
 
     /**
      * memberToken — sub is the memberId, role is MEMBER, type is ROOM.
-     * Scoped to a single room via the roomId claim; used for voting and viewing room state.
+     * Scoped to a single room via the roomId claim; carries maxVotesPerMember so vote-manager
+     * can enforce the cap without calling back into room-manager.
      */
-    public String generateMemberToken(Long memberId, Long roomId, Duration validity) {
-        return buildToken(memberId, Role.MEMBER, TokenType.ROOM, roomId, validity);
+    public String generateMemberToken(Long memberId, Long roomId, Integer maxVotesPerMember, Duration validity) {
+        return buildToken(memberId, Role.MEMBER, TokenType.ROOM, roomId, maxVotesPerMember, validity);
     }
 
     /**
      * hostToken — sub is the memberId, role is HOST, type is ROOM.
      * Scoped to a single room via the roomId claim; used for starting/closing sessions and member management.
+     * Hosts also vote like members, so it carries maxVotesPerMember too.
      */
-    public String generateHostToken(Long memberId, Long roomId, Duration validity) {
-        return buildToken(memberId, Role.HOST, TokenType.ROOM, roomId, validity);
+    public String generateHostToken(Long memberId, Long roomId, Integer maxVotesPerMember, Duration validity) {
+        return buildToken(memberId, Role.HOST, TokenType.ROOM, roomId, maxVotesPerMember, validity);
     }
 
-    private String buildToken(Long subjectId, Role role, TokenType type, Long roomId, Duration validity) {
+    private String buildToken(Long subjectId, Role role, TokenType type, Long roomId, Integer maxVotesPerMember, Duration validity) {
         Instant now = Instant.now();
         Instant expiry = now.plus(validity);
 
@@ -69,6 +71,9 @@ public class TokenProvider {
 
         if (roomId != null) {
             builder.claim("roomId", roomId.toString());
+        }
+        if (maxVotesPerMember != null) {
+            builder.claim("maxVotes", maxVotesPerMember);
         }
 
         return builder
