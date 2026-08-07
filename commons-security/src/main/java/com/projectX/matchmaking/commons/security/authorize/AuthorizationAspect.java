@@ -23,7 +23,7 @@ public class AuthorizationAspect {
             throw new UnauthorizedException("Missing or invalid token");
         }
 
-        Map<String, String> details = detailsOf(auth);
+        Map<String, String> details = AuthenticatedRequest.detailsOf(auth);
         String type = details.get("type");
         String role = details.get("role");
 
@@ -41,12 +41,6 @@ public class AuthorizationAspect {
                 throw new ForbiddenException("Token is not scoped to this room");
             }
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    private Map<String, String> detailsOf(Authentication auth) {
-        Object details = auth.getDetails();
-        return details instanceof Map ? (Map<String, String>) details : Map.of();
     }
 
     private String pathVariable(String name) {
