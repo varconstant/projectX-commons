@@ -21,6 +21,7 @@
         <module>commons-filter</module>
         <module>commons-token</module>
         <module>commons-security</module>
+        <module>commons-web</module>
     </modules>
 
     <properties>
@@ -41,6 +42,11 @@
             <dependency>
                 <groupId>com.projectX.matchmaking</groupId>
                 <artifactId>commons-filter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.projectX.matchmaking</groupId>
+                <artifactId>commons-web</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
